@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Play Flappy Flame - A fun and challenging game where you control a flying flame through obstacles. Test your reflexes and see how far you can go!">
+    <meta name="keywords" content="flappy flame, game, online game, html5 game, skill game, free game">
+    <title>Flappy Flame - Free Online HTML5 Game</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&display=swap');
+        
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            font-family: 'Poppins', sans-serif;
+            overflow-x: hidden;
+            color: #333;
+        }
+        
+        .header {
+            text-align: center;
+            margin: 20px 0;
+            color: white;
+        }
+        
+        .header h1 {
+            margin: 0;
+            font-size: 2.5rem;
+            background: linear-gradient(to right, #ff8a00, #e52e71);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .game-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            max-width: 1000px;
+            width: 100%;
+            padding: 20px;
+        }
+        
+        #game-container {
+            position: relative;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            border-radius: 10px;
+            overflow: hidden;
+            order: 2;
+        }
+        
+        #game-canvas {
+            display: block;
+            background: linear-gradient(to bottom, #1e5799 0%, #2989d8 50%, #207cca 51%, #7db9e8 100%);
+        }
+        
+        #game-over {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            display: none;
+            backdrop-filter: blur(5px);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            width: 70%;
+            max-width: 300px;
+        }
+        
+        #restart-btn {
+            background: linear-gradient(to right, #ff416c, #ff4b2b);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            margin-top: 20px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(255, 75, 43, 0.4);
+        }
+        
+        #score-display {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: white;
+            font-size: 28px;
+            font-weight: bold;
+            text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.8);
+            background: rgba(0, 0, 0, 0.3);
+            padding: 5px 20px;
+            border-radius: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        #start-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            z-index: 10;
+        }
+        
+        #start-btn {
+            background: linear-gradient(to right, #00b09b, #96c93d);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            margin-top: 30px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 176, 155, 0.4);
+        }
+        
+        .title {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            background: linear-gradient(to right, #ff8a00, #e52e71);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        .instructions {
+            margin-top: 20px;
+            font-size: 1.2rem;
+            opacity: 0.8;
+            text-align: center;
+            max-width: 300px;
+        }
+        
+        .cloud {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 50%;
+            filter: blur(5px);
+            z-index: 1;
+        }
+        
+        .ad-container {
+            width: 100%;
+            max-width: 728px;
+            height: 90px;
+            background: rgba(255, 255, 255, 0.1);
+            margin: 20px 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 8px;
+            order: 1;
+        }
+        
+        .ad-container.horizontal {
+            max-width: 728px;
+            height: 90px;
+        }
+        
+        .ad-container.vertical {
+            max-width: 300px;
+            height: 250px;
+            order: 3;
+        }
+        
+        .game-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            width: 100%;
+        }
+        
+        @media (min-width: 768px) {
+            .game-wrapper {
+                flex-direction: row;
+                align-items: flex-start;
+                justify-content: center;
+            }
+            
+            .ad-container.vertical {
+                order: 2;
+                margin-left: 20px;
+            }
+            
+            #game-container {
+                order: 1;
+            }
+        }
+        
+        .game-description {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            max-width: 800px;
+            text-align: center;
+            order: 3;
+            width: 100%;
+        }
+        
+        .game-description h2 {
+            color: #ff5722;
+            margin-top: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Flappy Flame</h1>
+    </div>
+    
+    <div class="game-wrapper">
+        <div class="game-content">
+            <div class="ad-container horizontal">
+                <!-- Google AdSense Horizontal Banner -->
+                <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX"
+                    crossorigin="anonymous"></script>
+                <ins class="adsbygoogle"
+                    style="display:block"
+                    data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
+                    data-ad-slot="XXXXXXXXXX"
+                    data-ad-format="auto"
+                    data-full-width-responsive="true"></ins>
+                <script>
+                    (adsbygoogle = window.adsbygoogle || []).push({});
+                </script>
+            </div>
+            
+            <div id="game-container">
+                <canvas id="game-canvas" width="400" height="600"></canvas>
+                <div id="score-display">0</div>
+                <div id="game-over">
+                    <h2>Game Over!</h2>
+                    <p id="final-score">Score: 0</p>
+                    <button id="restart-btn">Play Again</button>
+                </div>
+                <div id="start-screen">
+                    <h1 class="title">Flappy Flame</h1>
+                    <p class="instructions">Tap or click to keep the flame flying. Avoid the pipes and see how far you can go!</p>
+                    <button id="start-btn">Start Game</button>
+                </div>
+            </div>
+            
+            <div class="game-description">
+                <h2>About Flappy Flame</h2>
+                <p>Flappy Flame is an exciting skill game where you control a magical flame through challenging obstacles. Test your reflexes and timing as you navigate through increasingly difficult gaps. Compete with friends and try to beat your high score in this addictive HTML5 game!</p>
+                <p><strong>How to play:</strong> Click, tap, or press Space to make the flame jump. Avoid hitting the pipes and try to survive as long as possible!</p>
+            </div>
+        </div>
+        
+        <div class="ad-container vertical">
+            <!-- Google AdSense Vertical Banner -->
+            <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX"
+                crossorigin="anonymous"></script>
+            <ins class="adsbygoogle"
+                style="display:block"
+                data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
+                data-ad-slot="XXXXXXXXXX"
+                data-ad-format="auto"
+                data-full-width-responsive="true"></ins>
+            <script>
+                (adsbygoogle = window.adsbygoogle || []).push({});
+            </script>
+        </div>
+    </div>
+
+    <script>
+        // Game variables
+        const canvas = document.getElementById('game-canvas');
+        const ctx = canvas.getContext('2d');
+        const scoreDisplay = document.getElementById('score-display');
+        const gameOverDiv = document.getElementById('game-over');
+        const finalScoreDisplay = document.getElementById('final-score');
+        const restartBtn = document.getElementById('restart-btn');
+        const startScreen = document.getElementById('start-screen');
+        const startBtn = document.getElementById('start-btn');
+
+        // Game state
+        let score = 0;
+        let highScore = localStorage.getItem('flappyFlameHighScore') || 0;
+        let isGameOver = false;
+        let isGameStarted = false;
+        let animationId;
+        let lastTime = 0;
+        let clouds = [];
+
+        // Create clouds for background
+        function createClouds() {
+            for (let i = 0; i < 5; i++) {
+                clouds.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height * 0.6,
+                    width: 80 + Math.random() * 70,
+                    height: 40 + Math.random() * 40,
+                    speed: 0.2 + Math.random() * 0.5
+                });
+            }
+        }
+
+        // Player (flame) properties
+        const flame = {
+            x: 100,
+            y: canvas.height / 2,
+            width: 40,
+            height: 50,
+            velocity: 0,
+            gravity: 0.5,
+            jumpForce: -10,
+            rotation: 0
+        };
+
+        // Pipes
+        const pipes = [];
+        const pipeWidth = 70;
+        const pipeGap = 180;
+        let pipeSpawnTimer = 0;
+        const pipeSpawnInterval = 1500; // milliseconds
+        let pipeSpeed = 2;
+
+        // Game controls
+        let isMouseDown = false;
+
+        // Event listeners
+        canvas.addEventListener('mousedown', () => isMouseDown = true);
+        canvas.addEventListener('mouseup', () => isMouseDown = false);
+        canvas.addEventListener('touchstart', () => isMouseDown = true);
+        canvas.addEventListener('touchend', () => isMouseDown = false);
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space') {
+                isMouseDown = true;
+                e.preventDefault();
+            }
+        });
+        document.addEventListener('keyup', (e) => {
+            if (e.code === 'Space') {
+                isMouseDown = false;
+                e.preventDefault();
+            }
+        });
+
+        restartBtn.addEventListener('click', restartGame);
+        startBtn.addEventListener('click', startGame);
+
+        // Game functions
+        function jump() {
+            flame.velocity = flame.jumpForce;
+        }
+
+        function spawnPipe() {
+            const minHeight = 80;
+            const maxHeight = canvas.height - pipeGap - minHeight;
+            const topHeight = Math.floor(Math.random() * (maxHeight - minHeight + 1)) + minHeight;
+
+            pipes.push({
+                x: canvas.width,
+                topHeight: topHeight,
+                passed: false
+            });
+        }
+
+        function update(deltaTime) {
+            if (isGameOver || !isGameStarted) return;
+
+            // Update clouds
+            clouds.forEach(cloud => {
+                cloud.x -= cloud.speed;
+                if (cloud.x + cloud.width < 0) {
+                    cloud.x = canvas.width;
+                    cloud.y = Math.random() * canvas.height * 0.6;
+                }
+            });
+
+            // Update flame
+            if (isMouseDown) {
+                jump();
+            }
+
+            flame.velocity += flame.gravity;
+            flame.y += flame.velocity;
+            
+            // Add rotation effect based on velocity
+            flame.rotation = Math.min(Math.max(flame.velocity * 3, -30), 30);
+
+            // Check boundaries
+            if (flame.y < 0) {
+                flame.y = 0;
+                flame.velocity = 0;
+            }
+
+            if (flame.y + flame.height > canvas.height) {
+                gameOver();
+            }
+
+            // Spawn pipes
+            pipeSpawnTimer += deltaTime;
+            if (pipeSpawnTimer >= pipeSpawnInterval) {
+                spawnPipe();
+                pipeSpawnTimer = 0;
+            }
+
+            // Update pipes
+            for (let i = pipes.length - 1; i >= 0; i--) {
+                pipes[i].x -= pipeSpeed;
+
+                // Check collision
+                if (
+                    flame.x + flame.width > pipes[i].x &&
+                    flame.x < pipes[i].x + pipeWidth &&
+                    (flame.y < pipes[i].topHeight || flame.y + flame.height > pipes[i].topHeight + pipeGap)
+                ) {
+                    gameOver();
+                }
+
+                // Check if pipe passed
+                if (!pipes[i].passed && flame.x > pipes[i].x + pipeWidth) {
+                    pipes[i].passed = true;
+                    score++;
+                    scoreDisplay.textContent = score;
+                    pipeSpeed += 0.1; // Increase difficulty
+                }
+
+                // Remove off-screen pipes
+                if (pipes[i].x + pipeWidth < 0) {
+                    pipes.splice(i, 1);
+                }
+            }
+        }
+
+        function draw() {
+            // Clear canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Draw sky gradient
+            const skyGradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            skyGradient.addColorStop(0, '#1e5799');
+            skyGradient.addColorStop(0.5, '#2989d8');
+            skyGradient.addColorStop(1, '#7db9e8');
+            ctx.fillStyle = skyGradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Draw sun
+            ctx.beginPath();
+            ctx.arc(canvas.width - 50, 50, 40, 0, Math.PI * 2);
+            const sunGradient = ctx.createRadialGradient(
+                canvas.width - 50, 50, 5,
+                canvas.width - 50, 50, 40
+            );
+            sunGradient.addColorStop(0, '#FFD700');
+            sunGradient.addColorStop(1, 'rgba(255, 215, 0, 0.3)');
+            ctx.fillStyle = sunGradient;
+            ctx.fill();
+            
+            // Draw clouds
+            clouds.forEach(cloud => {
+                drawCloud(cloud.x, cloud.y, cloud.width, cloud.height);
+            });
+
+            // Draw pipes with better design
+            ctx.fillStyle = '#4CAF50';
+            for (const pipe of pipes) {
+                // Top pipe
+                ctx.fillRect(pipe.x, 0, pipeWidth, pipe.topHeight);
+                // Bottom pipe
+                ctx.fillRect(pipe.x, pipe.topHeight + pipeGap, pipeWidth, canvas.height - pipe.topHeight - pipeGap);
+                
+                // Add pipe edges
+                ctx.fillStyle = '#388E3C';
+                ctx.fillRect(pipe.x - 5, pipe.topHeight - 20, pipeWidth + 10, 20);
+                ctx.fillRect(pipe.x - 5, pipe.topHeight + pipeGap, pipeWidth + 10, 20);
+                ctx.fillStyle = '#4CAF50';
+            }
+
+            // Draw flame (player) with rotation and better animation
+            ctx.save();
+            ctx.translate(flame.x + flame.width/2, flame.y + flame.height/2);
+            ctx.rotate(flame.rotation * Math.PI / 180);
+            
+            // Flame core
+            const flameGradient = ctx.createRadialGradient(
+                0, 0, 0,
+                0, 0, flame.width/2
+            );
+            flameGradient.addColorStop(0, '#FFC107');
+            flameGradient.addColorStop(0.7, '#FF5722');
+            flameGradient.addColorStop(1, '#F44336');
+            ctx.fillStyle = flameGradient;
+            
+            // Flame shape with animation effect
+            const time = Date.now() * 0.01;
+            const flameSize = flame.width/2 + Math.sin(time) * 3;
+            
+            ctx.beginPath();
+            for (let i = 0; i < 360; i += 30) {
+                const angle = i * Math.PI / 180;
+                const radius = flameSize + Math.sin(time + i * 0.1) * 5;
+                const x = radius * Math.cos(angle);
+                const y = radius * Math.sin(angle);
+                if (i === 0) {
+                    ctx.moveTo(x, y);
+                } else {
+                    ctx.lineTo(x, y);
+                }
+            }
+            ctx.closePath();
+            ctx.fill();
+            
+            // Flame inner glow
+            const innerGlow = ctx.createRadialGradient(
+                0, 0, 0,
+                0, 0, flame.width/3
+            );
+            innerGlow.addColorStop(0, 'rgba(255, 255, 255, 0.9)');
+            innerGlow.addColorStop(1, 'rgba(255, 193, 7, 0)');
+            ctx.fillStyle = innerGlow;
+            ctx.beginPath();
+            ctx.arc(0, 0, flame.width/3, 0, Math.PI * 2);
+            ctx.fill();
+            
+            ctx.restore();
+        }
+
+        function drawCloud(x, y, width, height) {
+            ctx.save();
+            ctx.filter = 'blur(8px)';
+            
+            const segments = 5;
+            const segmentWidth = width / segments;
+            
+            for (let i = 0; i < segments; i++) {
+                const segmentX = x + i * segmentWidth;
+                const segmentY = y + (i % 2 === 0 ? -5 : 5);
+                const segmentSize = height * (0.8 + Math.random() * 0.4);
+                
+                ctx.beginPath();
+                ctx.arc(segmentX, segmentY, segmentSize, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(255, 255, 255, ${0.6 + Math.random() * 0.2})`;
+                ctx.fill();
+            }
+            
+            ctx.restore();
+        }
+
+        function gameOver() {
+            isGameOver = true;
+            finalScoreDisplay.textContent = `Score: ${score}`;
+            
+            // Update high score
+            if (score > highScore) {
+                highScore = score;
+                localStorage.setItem('flappyFlameHighScore', highScore);
+                finalScoreDisplay.textContent += ` (New High Score!)`;
+            } else {
+                finalScoreDisplay.textContent += ` (High Score: ${highScore})`;
+            }
+            
+            gameOverDiv.style.display = 'block';
+            cancelAnimationFrame(animationId);
+        }
+
+        function startGame() {
+            isGameStarted = true;
+            startScreen.style.display = 'none';
+            lastTime = 0;
+            animationId = requestAnimationFrame(gameLoop);
+        }
+
+        function restartGame() {
+            isGameOver = false;
+            score = 0;
+            flame.y = canvas.height / 2;
+            flame.velocity = 0;
+            flame.rotation = 0;
+            pipes.length = 0;
+            pipeSpeed = 2;
+            pipeSpawnTimer = 0;
+            scoreDisplay.textContent = score;
+            gameOverDiv.style.display = 'none';
+            lastTime = 0;
+            animationId = requestAnimationFrame(gameLoop);
+        }
+
+        // Game loop
+        function gameLoop(timestamp) {
+            if (!lastTime) lastTime = timestamp;
+            const deltaTime = timestamp - lastTime;
+            lastTime = timestamp;
+
+            update(deltaTime);
+            draw();
+
+            if (!isGameOver && isGameStarted) {
+                animationId = requestAnimationFrame(gameLoop);
+            }
+        }
+
+        // Initialize game
+        createClouds();
+    </script>
+</body>
+</html>
